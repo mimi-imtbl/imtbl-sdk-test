@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <!-- Load the SDK from jsdelivr -->
+    <script src="https://cdn.jsdelivr.net/npm/@imtbl/sdk/dist/browser/checkout/sdk.js"></script>
+    <title>Immutable Wallet Widget</title>
+  </head>
+
+  <body>
+    <!-- Create a mount point for the widget -->
+    <div id="mount-point"></div>
+    <script>
+      // Initialize Checkout SDK
+      const checkout = new ImmutableCheckout.Checkout();
+
+      // Initialize the widgets factory
+      (async function () {
+        const factory = await checkout.widgets({
+          config: { theme: ImmutableCheckout.WidgetTheme.DARK },
+        });
+
+        // RECOMMENDED: Create the Commerce Widget once at the start of your application.
+        // !!! FIX: Use factory.create instead of widgets.create !!! 
+        const widget = factory.create(
+          ImmutableCheckout.WidgetType.IMMUTABLE_COMMERCE
+        );
+
+        // Mount the Commerce Widget at the element id provided
+        // You can mount and unmount this widget in specific parts of your application as needed.
+        widget.mount('mount-point', {
+          // the flow to be used
+          flow: 'WALLET',
+          // ... other params, will depend on the selected flow
+        });
+      })();
+    </script>
+  </body>
+</html>
