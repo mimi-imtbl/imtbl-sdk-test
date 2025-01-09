@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect } from 'react';
+import { checkout, config } from '@imtbl/sdk';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Create an instance of the Checkout SDK and configure the environment SANDBOX / PRODUCTION
+const checkoutSDK = new checkout.Checkout({
+  baseConfig: { environment: config.Environment.SANDBOX },
+  bridge: { enable: true },
+  swap: { enable: true },
+  onRamp: { enable: true }
+});
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+export default function App () {
+  useEffect(() => {
+    (async () => {
+      // Get an instance of the factory to be able to create the Widget
+      const factory = await checkoutSDK.widgets({
+        config: { theme: checkout.WidgetTheme.DARK },
+      });
 
-export default App
+      // RECOMMENDED: Create the Commerce Widget once at the start of your application.
+      const widget = factory.create(checkout.WidgetType.IMMUTABLE_COMMERCE, {
+        // provider: web3Provider // pass in a Web3Provider if already connected to a wallet
+        config: {
+          // pass in the configuration for each flow
+          WALLET: {
+            showNetworkMenu: true,
+            showDisconnectButton: true,
+          }
+        }
+      });
+
+      // Mount the Commerce Widget at the element id provided
+      // You can mount and unmount this widget in specific parts of your application as needed.
+      widget.mount('mount-point', {
+        // the flow to be used
+        flow: checkout.CommerceFlowType.WALLET,
+        // ... other params, will depend on the selected flow
+      });
+    })();
+  }, []);
+
+  return ( <div>
+      <h1 className="sample-heading">Immutable Wallet Widget</h1><div id="mount-point" /></div>);
+};
